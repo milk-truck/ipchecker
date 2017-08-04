@@ -1,27 +1,29 @@
-import requests
+""" Gets your public IP address and stores it
+Will add notifications when IP changes """
+
 import json
-import os
+import requests
+
+def retrieve_ip(uri):
+    """ get da ip """
+    resp = requests.get(uri)
+    return resp.json()['ip']
+
+def main():
+    """ Main func lol """
+    theip = retrieve_ip('https://api.ipify.org?format=json')
+
+    try:
+        oldip = json.load(open('ip.json'))['ip']
+    except FileNotFoundError:
+        json.dump({'ip': '0.0.0.0'}, open('ip.json', 'w'))
+        oldip = '0.0.0.0'
+
+    if theip == oldip:
+        print('IP remains {}'.format(theip))
+    else:
+        json.dump({'ip': theip}, open('ip.json', 'w'))
+        print('IP is now {}'.format(theip))
 
 if __name__ == '__main__':
-    resp = requests.get('https://api.ipify.org?format=json')
-    ipinfo = json.loads(resp.text)
-    
-    if os.path.isfile('ip.json'):
-        with open('ip.json', 'r') as file:
-            try:
-                f = json.loads(file.readline())
-                if ipinfo['ip'] != f['ip']:
-                    with open('ip.json', 'w+') as file:
-                        file.write(json.dumps(ipinfo))
-                        print("\nPublic IP: {ip}\n".format(ip=ipinfo['ip']))
-                else: 
-                    print("\nPublic IP: {ip}\n".format(ip=ipinfo['ip']))
-            except(json.decoder.JSONDecodeError):
-                with open('ip.json', 'w+') as file:
-                    file.write(json.dumps(ipinfo))
-                    print("\nPublic IP: {ip}\n".format(ip=ipinfo['ip']))
-            
-    else:
-        with open('ip.json', 'w+') as file:
-            file.write(json.dumps(ipinfo))
-            print("\nPublic IP: {ip}\n".format(ip=ipinfo['ip']))
+    main()
