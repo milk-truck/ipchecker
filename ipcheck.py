@@ -16,11 +16,10 @@ def main():
     try:
         oldip = json.load(open('ip.json'))['ip']
     except FileNotFoundError:
-        json.dump({'ip': '0.0.0.0'}, open('ip.json', 'w'))
         oldip = '0.0.0.0'
 
     if theip == oldip:
-        print('IP remains {}'.format(theip))
+        print('No change -> {}'.format(theip))
     else:
         json.dump({'ip': theip}, open('ip.json', 'w'))
         print('IP is now {}'.format(theip))
